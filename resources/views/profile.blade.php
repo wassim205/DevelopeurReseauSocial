@@ -44,7 +44,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                325 Publications
+                                {{ auth()->user()->posts()->count()}} Publications
                             </div>
                             <div class="flex items-center text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
@@ -173,32 +173,48 @@
         <div id="projects-form" class="fixed inset-0 flex items-center justify-center hidden">
             <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl">
                 <h3 class="text-xl font-semibold mb-6 text-gray-100">Add / Update Project</h3>
-                <form id="project-form">
+                <form id="project-form" action="{{ route('projects.update') }}" method="post">
+                    @csrf
                     <!-- Project Title -->
                     <div class="mb-4">
                         <label for="project-title" class="block text-gray-200 mb-2">Project Title</label>
-                        <input type="text" id="project-title"
+                        <input type="text" name="projects[0][title]" id="project-title" required
                             class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
                             placeholder="Enter project title">
                     </div>
+                    <!-- Project Start Date -->
+                    <div class="mb-4">
+                        <label for="project-date" class="block text-gray-200 mb-2">Project Start Date</label>
+                        <input type="date" name="projects[0][date]" id="project-date" required
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white">
+                    </div>
+
+                    <!-- Project End Date -->
+                    <div class="mb-4">
+                        <label for="project-endDate" class="block text-gray-200 mb-2">Project End Date</label>
+                        <input type="date" name="projects[0][endDate]" id="project-endDate"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white">
+                    </div>
+
+
                     <!-- Project Description -->
                     <div class="mb-4">
                         <label for="project-description" class="block text-gray-200 mb-2">Project Description</label>
-                        <textarea id="project-description" rows="4"
+                        <textarea name="projects[0][description]" id="project-description" rows="4" required
                             class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
                             placeholder="Describe your project"></textarea>
                     </div>
                     <!-- Project Link -->
                     <div class="mb-4">
                         <label for="project-link" class="block text-gray-200 mb-2">Project Link</label>
-                        <input type="url" id="project-link"
+                        <input type="url" name="projects[0][link]" id="project-link"
                             class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
                             placeholder="https://yourproject.com">
                     </div>
                     <!-- Languages Used -->
                     <div class="mb-4">
                         <label for="project-languages" class="block text-gray-200 mb-2">Languages Used</label>
-                        <input type="text" id="project-languages"
+                        <input type="text" name="projects[0][languages]" id="project-languages"
                             class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
                             placeholder="e.g. PHP, JavaScript, Python">
                     </div>
@@ -211,6 +227,7 @@
                 </form>
             </div>
         </div>
+
 
 
         <!-- Certifications Modal -->
@@ -328,55 +345,6 @@
                             @endif
                         </div>
                     </div>
-
-                    <!-- GitHub Integration -->
-                    {{-- <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center space-x-2">
-                                <h2 class="text-xl font-semibold">GitHub</h2>
-
-                            </div>
-                            <a href="https://github.com/sophiedev" target="_blank"
-                                class="text-indigo-400 hover:text-indigo-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                            </a>
-                        </div>
-
-                        <div class="flex items-center space-x-4 mb-4">
-                            <img src="/api/placeholder/60/60" alt="GitHub Avatar" class="rounded-full h-12 w-12" />
-                            <div>
-                                <div class="font-medium">@sophiedev</div>
-                                <div class="text-gray-400 text-sm">35 dépôts publics</div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="bg-gray-700 p-3 rounded-lg">
-                                <div class="text-lg font-semibold">1.2k</div>
-                                <div class="text-gray-400 text-sm">Contributions</div>
-                            </div>
-                            <div class="bg-gray-700 p-3 rounded-lg">
-                                <div class="text-lg font-semibold">184</div>
-                                <div class="text-gray-400 text-sm">Followers</div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <div class="font-medium mb-2">Activité récente</div>
-                            <div class="bg-gray-700 p-3 rounded-lg mb-2">
-                                <div class="font-medium">e-commerce-platform</div>
-                                <div class="text-sm text-gray-400">5 commits il y a 2 jours</div>
-                            </div>
-                            <div class="bg-gray-700 p-3 rounded-lg">
-                                <div class="font-medium">react-component-library</div>
-                                <div class="text-sm text-gray-400">2 pull requests il y a 5 jours</div>
-                            </div>
-                        </div>
-                    </div> --}}
                 </div>
 
 
@@ -393,89 +361,115 @@
                         </div>
 
                         <div class="space-y-6">
-                            <!-- Project 1 -->
-                            <div class="border-b border-gray-700 pb-6">
-                                <div class="flex justify-between mb-2">
-                                    <h3 class="font-medium text-lg">E-commerce Platform</h3>
-                                    <div class="text-gray-400 text-sm">Nov 2023 - Présent</div>
-                                </div>
-                                <p class="text-gray-300 mb-3">
-                                    Plateforme e-commerce complète avec panier d'achat, paiements sécurisés et tableau
-                                    de bord administrateur.
-                                    Développée avec Laravel, Vue.js et MySQL.
-                                </p>
-                                <div class="flex flex-wrap gap-2 mb-3">
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Laravel</span>
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Vue.js</span>
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">MySQL</span>
-                                    <span class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Stripe
-                                        API</span>
-                                </div>
-                                <div class="flex space-x-3">
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">Démo</a>
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">GitHub</a>
-                                </div>
-                            </div>
-
-                            <!-- Project 2 -->
-                            <div class="border-b border-gray-700 pb-6">
-                                <div class="flex justify-between mb-2">
-                                    <h3 class="font-medium text-lg">React Component Library</h3>
-                                    <div class="text-gray-400 text-sm">Juin 2023 - Oct 2023</div>
-                                </div>
-                                <p class="text-gray-300 mb-3">
-                                    Bibliothèque de composants React réutilisables et accessibles, avec documentation
-                                    complète et exemples.
-                                    Publiée sur npm avec plus de 2000 téléchargements.
-                                </p>
-                                <div class="flex flex-wrap gap-2 mb-3">
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">React</span>
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">TypeScript</span>
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Storybook</span>
-                                    <span class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Jest</span>
-                                </div>
-                                <div class="flex space-x-3">
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">Documentation</a>
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">GitHub</a>
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">npm</a>
-                                </div>
-                            </div>
-
-                            <!-- Project 3 -->
-                            <div>
-                                <div class="flex justify-between mb-2">
-                                    <h3 class="font-medium text-lg">AI-powered Task Manager</h3>
-                                    <div class="text-gray-400 text-sm">Jan 2023 - Mai 2023</div>
-                                </div>
-                                <p class="text-gray-300 mb-3">
-                                    Application de gestion de tâches avec fonctionnalités d'IA pour la priorisation et
-                                    les suggestions.
-                                    Utilise Node.js, MongoDB et intégration avec OpenAI API.
-                                </p>
-                                <div class="flex flex-wrap gap-2 mb-3">
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Node.js</span>
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">Express</span>
-                                    <span
-                                        class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">MongoDB</span>
-                                    <span class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">OpenAI
-                                        API</span>
-                                </div>
-                                <div class="flex space-x-3">
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">Démo</a>
-                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 text-sm">GitHub</a>
-                                </div>
-                            </div>
+                            @if (auth()->user()->projects)
+                                @foreach(auth()->user()->projects as $index => $project)
+                                    <div class="border-b border-gray-700 pb-6">
+                                        <div class="flex justify-between mb-2">
+                                            <h3 class="font-medium text-lg">{{ $project['title'] }}</h3>
+                                            <div class="flex items-center">
+                                                <div class="text-gray-400 text-sm mr-4">
+                                                    {{ \Carbon\Carbon::parse($project['date'])->format('M Y') }} -
+                                                    {{ $project['endDate'] ? \Carbon\Carbon::parse($project['endDate'])->format('M Y') : 'Présent' }}
+                                                </div>
+                                                <div class="flex space-x-2">
+                                                    <!-- Edit Button -->
+                                                    <form action="{{ route('project.edit', ['index' => $index]) }}" method="GET">
+                                                        <button type="submit" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                 viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                        
+                                                    <!-- Delete Button -->
+                                                    <form action="{{ route('project.delete', ['index' => $index]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                 viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-gray-300 mb-3">{{ $project['description'] }}</p>
+                                        <div class="flex flex-wrap gap-2 mb-3">
+                                            @foreach($project['languages'] as $language)
+                                                <span class="bg-indigo-900 text-indigo-300 px-2 py-1 rounded-md text-xs">{{ $language }}</span>
+                                            @endforeach
+                                        </div>
+                                        <div class="flex space-x-3">
+                                            @if(!empty($project['link']))
+                                                <a href="{{ $project['link'] }}" target="_blank"
+                                                   class="text-indigo-400 hover:text-indigo-300 text-sm">Project Link</a>
+                                            @endif
+                                        </div>
+                                    </div>
+                        
+                                    <!-- Edit Form -->
+                                    {{-- @php
+                                    dump(isset($editIndex));  
+                                    dump($editIndex === $index);  
+                                    dump($editIndex);  
+                                    dump($index);  
+                                    @endphp --}}
+                                    @if(isset($editIndex) && $editIndex == $index)
+                                        <div class="border-t border-gray-700 pt-4">
+                                            <h2 class="text-lg font-semibold text-white mb-4">Edit Project</h2>
+                        
+                                            <form action="{{ route('project.update', ['index' => $index]) }}" method="POST">
+                                                @csrf
+                                                @method('PUT')
+                        
+                                                <input type="hidden" name="index" value="{{ $index }}">
+                        
+                                                <div class="mb-4">
+                                                    <label for="title" class="text-gray-300">Title</label>
+                                                    <input type="text" name="title" value="{{ $project['title'] }}"
+                                                           class="w-full p-2 rounded bg-gray-700 text-white">
+                                                </div>
+                        
+                                                <div class="mb-4">
+                                                    <label for="date" class="text-gray-300">Start Date</label>
+                                                    <input type="date" name="date" value="{{ $project['date'] }}"
+                                                           class="w-full p-2 rounded bg-gray-700 text-white">
+                                                </div>
+                        
+                                                <div class="mb-4">
+                                                    <label for="endDate" class="text-gray-300">End Date</label>
+                                                    <input type="date" name="endDate" value="{{ $project['endDate'] }}"
+                                                           class="w-full p-2 rounded bg-gray-700 text-white">
+                                                </div>
+                        
+                                                <div class="mb-4">
+                                                    <label for="description" class="text-gray-300">Description</label>
+                                                    <textarea name="description"
+                                                              class="w-full p-2 rounded bg-gray-700 text-white">{{ $project['description'] }}</textarea>
+                                                </div>
+                        
+                                                <div class="mb-4">
+                                                    <label for="link" class="text-gray-300">Project Link</label>
+                                                    <input type="url" name="link" value="{{ $project['link'] }}"
+                                                           class="w-full p-2 rounded bg-gray-700 text-white">
+                                                </div>
+                        
+                                                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded">Save Changes</button>
+                                                <button type="button" class="bg-gray-600 text-white px-4 py-2 rounded" onclick="window.location='{{ url()->current() }}'">Cancel</button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @else
+                                <p class="text-gray-400">No projects added yet.</p>
+                            @endif
                         </div>
-                    </div>
-
+                    </div>              
                     <!-- Certifications -->
                     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
                         <div class="flex justify-between items-center mb-6">
@@ -538,6 +532,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Project Modal -->
+    <div id="editProjectModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
+            <h2 class="text-xl font-semibold text-white mb-4">Edit Project</h2>
+
+            <form id="editProjectForm" method="POST">
+                @csrf
+                @method('PUT')
+
+                <input type="hidden" name="index" id="projectIndex">
+
+                <div class="mb-4">
+                    <label for="title" class="text-gray-300">Title</label>
+                    <input type="text" name="title" id="projectTitle" class="w-full p-2 rounded bg-gray-700 text-white">
+                </div>
+
+                <div class="mb-4">
+                    <label for="date" class="text-gray-300">Start Date</label>
+                    <input type="date" name="date" id="projectDate" class="w-full p-2 rounded bg-gray-700 text-white">
+                </div>
+
+                <div class="mb-4">
+                    <label for="endDate" class="text-gray-300">End Date</label>
+                    <input type="date" name="endDate" id="projectEndDate"
+                        class="w-full p-2 rounded bg-gray-700 text-white">
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="text-gray-300">Description</label>
+                    <textarea name="description" id="projectDescription"
+                        class="w-full p-2 rounded bg-gray-700 text-white"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="link" class="text-gray-300">Project Link</label>
+                    <input type="url" name="link" id="projectLink" class="w-full p-2 rounded bg-gray-700 text-white">
+                </div>
+
+                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded">Save Changes</button>
+                <button type="button" class="bg-gray-600 text-white px-4 py-2 rounded"
+                    onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         const overlay = document.getElementById('overlay');
 

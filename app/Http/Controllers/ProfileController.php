@@ -92,25 +92,21 @@ class ProfileController extends Controller
     }
     public function updateLanguages(Request $request)
     {
-        // Validate the input
+
         $validatedData = $request->validate([
             'languages' => 'nullable|string',
         ]);
-    
-        // Process languages
+
         $languages = isset($validatedData['languages']) ? array_map('trim', explode(',', $validatedData['languages'])) : [];
-    
-        // Check for empty values
+
         if (array_filter($languages) !== $languages) {
             return redirect()->back()->withErrors(['error' => 'Invalid language format. Please separate languages with commas.']);
         }
-    
-        // Check user authentication
+
+
         if (!$request->user()) {
             return redirect()->back()->withErrors(['error' => 'User not authenticated']);
         }
-    
-        // Update languages
         try {
             $request->user()->update(['languages' => $languages]);
             return redirect()->back()->with('success', 'Languages updated successfully!');
@@ -118,5 +114,101 @@ class ProfileController extends Controller
             return redirect()->back()->withErrors(['error' => 'Failed to update languages. Please try again.']);
         }
     }
+
+    public function updateProjects(Request $request)
+    {
+        $validatedData = $request->validate([
+            'projects' => 'nullable|array',
+            'projects.*.title' => 'required|string|max:255',
+            'projects.*.date' => 'required|date',
+            'projects.*.endDate' => 'nullable|date|after_or_equal:projects.*.date',
+            'projects.*.description' => 'required|string|max:1000',
+            'projects.*.link' => 'nullable|url',
+            'projects.*.languages' => 'nullable|string',
+        ]);
+
+        if (!$request->user()) {
+            return redirect()->back()->withErrors(['error' => 'User not authenticated']);
+        }
+
+        try {
+            // Retrieve existing projects from the database
+            $existingProjects = $request->user()->projects ?? [];
+
+            // Format new projects into an array
+            $newProjects = [];
+            foreach ($validatedData['projects'] as $project) {
+                $newProjects[] = [
+                    'title' => trim($project['title']),
+                    'date' => trim($project['date']),
+                    'endDate' => isset($project['endDate']) ? trim($project['endDate']) : null,
+                    'description' => trim($project['description']),
+                    'link' => isset($project['link']) ? trim($project['link']) : null,
+                    'languages' => isset($project['languages']) ? array_map('trim', explode(',', $project['languages'])) : [],
+                ];
+            }
+
+            // Merge new projects with existing ones
+            $updatedProjects = array_merge($existingProjects, $newProjects);
+
+            // Update the user's projects
+            $request->user()->update(['projects' => $updatedProjects]);
+
+            return redirect()->back()->with('success', 'Projects updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to update projects. Please try again.']);
+        }
+    }
+
+    public function projectEdit(Request $request, $index)
+    {
+        $projects = $request->user()->projects;
+        return view('profile', [
+            'projects' => $projects,
+            'editIndex' => (int)$index
+        ]);
+    }
     
+
+    public function projectUpdate(Request $request, $index)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'date' => 'required|date',
+            'endDate' => 'nullable|date',
+            'description' => 'required|string',
+            'link' => 'nullable|url',
+        ]);
+    
+        $projects = $request->user()->projects;
+        $projects[$index] = [
+            'title' => $request->input('title'),
+            'date' => $request->input('date'),
+            'endDate' => $request->input('endDate'),
+            'description' => $request->input('description'),
+            'link' => $request->input('link'),
+            'languages' => $projects[$index]['languages']
+        ];
+    
+        $request->user()->update(['projects' => $projects]);
+    
+        return redirect()->route('profileView')->with('success', 'Project updated successfully.');
+    }
+    
+
+    public function deleteProject($index)
+    {
+        $user = Auth::user();
+
+        if (!isset($user->projects[$index])) {
+            return redirect()->back()->withErrors(['error' => 'Project not found.']);
+        }
+
+        $projects = $user->projects;
+        array_splice($projects, $index, 1);
+
+        $user->update(['projects' => $projects]);
+
+        return redirect()->back()->with('success', 'Project deleted successfully!');
+    }
 }

@@ -49,10 +49,9 @@
                         </div>
 
                         <!-- GitHub Account Section -->
-                        <div class="mt-4">
+                        <div id="github-display" class="mt-4">
                             @if(auth()->user()->githubProfile)
                                 <div class="flex items-center">
-
                                     <img src="https://github.com/{{ auth()->user()->githubProfile }}.png"
                                         alt="GitHub Profile Picture" class="h-10 w-10 rounded-full mr-2">
                                     <span class="text-gray-100">{{ auth()->user()->githubProfile }}</span>
@@ -67,6 +66,7 @@
                                 </div>
                             @endif
                         </div>
+
                     </div>
 
                 </div>
@@ -79,24 +79,23 @@
         <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
 
         <!-- GitHub Profile Modal -->
-        <div id="github-form" class="fixed inset-0 flex items-center justify-center hidden">
+        <form id="github-form" action="{{ route('github.update') }}" method="POST"
+            class="fixed inset-0 flex items-center justify-center hidden">
+            @csrf
             <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
                 <h3 class="text-lg font-semibold mb-4 text-gray-100">Update GitHub Profile</h3>
-                <input type="text" id="githubProfile"
+                <input type="text" name="githubProfile" id="githubProfile"
                     class="w-full bg-gray-700 border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm p-2 text-white"
-                    placeholder="https://github.com/username">
+                    placeholder="https://github.com/username" value="{{ auth()->user()->githubProfile ?? '' }}">
                 <div class="flex justify-end mt-4">
-                    <button id="save-github"
-                        class="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">
-                        Save
-                    </button>
-                    <button id="close-github"
-                        class="ml-2 px-3 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700">
-                        Cancel
-                    </button>
+                    <button type="submit" id="save-github"
+                        class="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">Save</button>
+                    <button type="button" id="close-github"
+                        class="ml-2 px-3 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700">Cancel</button>
                 </div>
             </div>
-        </div>
+        </form>
+
 
         <!-- Skills Modal -->
         <div id="skills-form" class="fixed inset-0 flex items-center justify-center hidden">
@@ -138,79 +137,99 @@
             </div>
         </div>
 
-<!-- Projects Modal -->
-<div id="projects-form" class="fixed inset-0 flex items-center justify-center hidden">
-    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl">
-      <h3 class="text-xl font-semibold mb-6 text-gray-100">Add / Update Project</h3>
-      <form id="project-form">
-        <!-- Project Title -->
-        <div class="mb-4">
-          <label for="project-title" class="block text-gray-200 mb-2">Project Title</label>
-          <input type="text" id="project-title" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="Enter project title">
+        <!-- Projects Modal -->
+        <div id="projects-form" class="fixed inset-0 flex items-center justify-center hidden">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl">
+                <h3 class="text-xl font-semibold mb-6 text-gray-100">Add / Update Project</h3>
+                <form id="project-form">
+                    <!-- Project Title -->
+                    <div class="mb-4">
+                        <label for="project-title" class="block text-gray-200 mb-2">Project Title</label>
+                        <input type="text" id="project-title"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="Enter project title">
+                    </div>
+                    <!-- Project Description -->
+                    <div class="mb-4">
+                        <label for="project-description" class="block text-gray-200 mb-2">Project Description</label>
+                        <textarea id="project-description" rows="4"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="Describe your project"></textarea>
+                    </div>
+                    <!-- Project Link -->
+                    <div class="mb-4">
+                        <label for="project-link" class="block text-gray-200 mb-2">Project Link</label>
+                        <input type="url" id="project-link"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="https://yourproject.com">
+                    </div>
+                    <!-- Languages Used -->
+                    <div class="mb-4">
+                        <label for="project-languages" class="block text-gray-200 mb-2">Languages Used</label>
+                        <input type="text" id="project-languages"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="e.g. PHP, JavaScript, Python">
+                    </div>
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" id="save-project"
+                            class="px-4 py-2 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition">Save</button>
+                        <button type="button" id="close-projects"
+                            class="ml-3 px-4 py-2 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 transition">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <!-- Project Description -->
-        <div class="mb-4">
-          <label for="project-description" class="block text-gray-200 mb-2">Project Description</label>
-          <textarea id="project-description" rows="4" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="Describe your project"></textarea>
-        </div>
-        <!-- Project Link -->
-        <div class="mb-4">
-          <label for="project-link" class="block text-gray-200 mb-2">Project Link</label>
-          <input type="url" id="project-link" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="https://yourproject.com">
-        </div>
-        <!-- Languages Used -->
-        <div class="mb-4">
-          <label for="project-languages" class="block text-gray-200 mb-2">Languages Used</label>
-          <input type="text" id="project-languages" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="e.g. PHP, JavaScript, Python">
-        </div>
-        <div class="flex justify-end mt-6">
-          <button type="submit" id="save-project" class="px-4 py-2 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition">Save</button>
-          <button type="button" id="close-projects" class="ml-3 px-4 py-2 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 transition">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
 
-<!-- Certifications Modal -->
-<div id="certifications-form" class="fixed inset-0 flex items-center justify-center hidden">
-    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl">
-      <h3 class="text-xl font-semibold mb-6 text-gray-100">Add / Update Certification</h3>
-      <form id="certification-form">
-        <!-- Certification Title -->
-        <div class="mb-4">
-          <label for="cert-title" class="block text-gray-200 mb-2">Certification Title</label>
-          <input type="text" id="cert-title" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="Enter certification title">
+
+        <!-- Certifications Modal -->
+        <div id="certifications-form" class="fixed inset-0 flex items-center justify-center hidden">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl">
+                <h3 class="text-xl font-semibold mb-6 text-gray-100">Add / Update Certification</h3>
+                <form id="certification-form">
+                    <!-- Certification Title -->
+                    <div class="mb-4">
+                        <label for="cert-title" class="block text-gray-200 mb-2">Certification Title</label>
+                        <input type="text" id="cert-title"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="Enter certification title">
+                    </div>
+                    <!-- Issued By -->
+                    <div class="mb-4">
+                        <label for="cert-issued-by" class="block text-gray-200 mb-2">Issued By</label>
+                        <input type="text" id="cert-issued-by"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="Issuing Organization">
+                    </div>
+
+                    <!-- Delivery Date -->
+                    <div class="mb-4">
+                        <label for="cert-delivery-date" class="block text-gray-200 mb-2">Delivery Date</label>
+                        <input type="date" id="cert-delivery-date"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white">
+                    </div>
+                    <!-- Expire Date -->
+                    <div class="mb-4">
+                        <label for="cert-expire-date" class="block text-gray-200 mb-2">Expire Date</label>
+                        <input type="date" id="cert-expire-date"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white">
+                    </div>
+                    <!-- Credential URL -->
+                    <div class="mb-4">
+                        <label for="cert-url" class="block text-gray-200 mb-2">Credential URL</label>
+                        <input type="url" id="cert-url"
+                            class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white"
+                            placeholder="https://credential-url.com">
+                    </div>
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" id="save-certification"
+                            class="px-4 py-2 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition">Save</button>
+                        <button type="button" id="close-certifications"
+                            class="ml-3 px-4 py-2 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 transition">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <!-- Issued By -->
-        <div class="mb-4">
-          <label for="cert-issued-by" class="block text-gray-200 mb-2">Issued By</label>
-          <input type="text" id="cert-issued-by" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="Issuing Organization">
-        </div>
-      
-        <!-- Delivery Date -->
-        <div class="mb-4">
-          <label for="cert-delivery-date" class="block text-gray-200 mb-2">Delivery Date</label>
-          <input type="date" id="cert-delivery-date" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white">
-        </div>
-        <!-- Expire Date -->
-        <div class="mb-4">
-          <label for="cert-expire-date" class="block text-gray-200 mb-2">Expire Date</label>
-          <input type="date" id="cert-expire-date" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white">
-        </div>
-        <!-- Credential URL -->
-        <div class="mb-4">
-          <label for="cert-url" class="block text-gray-200 mb-2">Credential URL</label>
-          <input type="url" id="cert-url" class="w-full bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-3 text-white" placeholder="https://credential-url.com">
-        </div>
-        <div class="flex justify-end mt-6">
-          <button type="submit" id="save-certification" class="px-4 py-2 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition">Save</button>
-          <button type="button" id="close-certifications" class="ml-3 px-4 py-2 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 transition">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
+
 
 
 
@@ -297,13 +316,7 @@
                         <div class="flex justify-between items-center mb-4">
                             <div class="flex items-center space-x-2">
                                 <h2 class="text-xl font-semibold">GitHub</h2>
-                                {{-- <button class="text-green-400 hover:text-green-300" id="open-github-form">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </button> --}}
+                                
                             </div>
                             <a href="https://github.com/sophiedev" target="_blank"
                                 class="text-indigo-400 hover:text-indigo-300">
@@ -355,7 +368,8 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-semibold">Projets</h2>
-                            <button id="open-projects-form" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm">
+                            <button id="open-projects-form"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm">
                                 Ajouter un projet
                             </button>
                         </div>
@@ -448,7 +462,8 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-semibold">Certifications</h2>
-                            <button id="open-certifications-form" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm">
+                            <button id="open-certifications-form"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm">
                                 Ajouter une certification
                             </button>
                         </div>
@@ -581,8 +596,8 @@
             overlay.classList.add('hidden');
         }
 
-        document.getElementById('open-github-form').addEventListener('click', () => showModal('github-form'));
-        document.getElementById('close-github').addEventListener('click', () => closeModal('github-form'));
+        // document.getElementById('open-github-form').addEventListener('click', () => showModal('github-form'));
+        // document.getElementById('close-github').addEventListener('click', () => closeModal('github-form'));
 
         document.getElementById('open-skills-form').addEventListener('click', () => showModal('skills-form'));
         document.getElementById('close-skills').addEventListener('click', () => closeModal('skills-form'));
@@ -595,6 +610,61 @@
 
         document.getElementById('open-certifications-form').addEventListener('click', () => showModal('certifications-form'));
         document.getElementById('close-certifications').addEventListener('click', () => closeModal('certifications-form'));
+
+
+        document.getElementById('save-github').addEventListener('click', async function (e) {
+            e.preventDefault();
+            const githubProfile = document.getElementById('githubProfile').value;
+            try {
+                const response = await fetch("{{ route('github.update') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ githubProfile: githubProfile })
+                });
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+
+
+        $('#save-github').on('click', function (e) {
+            e.preventDefault();
+            const githubProfile = $('#githubProfile').val();
+
+            $.ajax({
+                url: '/github/update',
+                method: 'POST',
+                data: { githubProfile: githubProfile },
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#github-display').html(
+                            '<div class="flex items-center">' +
+                            '<img src="https://github.com/' + response.user.githubProfile + '.png" alt="GitHub Profile Picture" class="h-10 w-10 rounded-full mr-2">' +
+                            '<span class="text-gray-100">' + response.user.githubProfile + '</span>' +
+                            '</div>'
+                        );
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error updating GitHub profile:', error);
+                }
+            });
+        });
+        $('#save-github').on('click', function () {
+            $('#github-form').addClass('hidden');
+            $('#overlay').addClass('hidden');
+        });
+
     </script>
 
 </x-app-layout>

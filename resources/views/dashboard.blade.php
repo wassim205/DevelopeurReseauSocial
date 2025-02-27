@@ -1,6 +1,6 @@
 <x-app-layout>
 
-
+    {{-- <h1>ggggggggggggg</h1> --}}
     <div class="max-w-7xl mx-auto pt-20 px-4">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Profile Card -->
@@ -72,10 +72,10 @@
                 <div class="bg-gray-800 rounded-xl shadow-sm p-4">
                     <div class="flex items-center space-x-4">
                         <img src="https://avatar.iran.liara.run/public/boy" alt="User" class="w-12 h-12 rounded-full" />
-                        <button
+                        <a href="{{ route('posts.create') }}"
                             class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-left rounded-lg px-4 py-3 flex-grow transition-colors duration-200">
                             Share your knowledge or ask a question...
-                        </button>
+                        </a>
                     </div>
                     <div class="flex justify-between mt-4 pt-4 border-t border-gray-700">
                         <button class="flex items-center space-x-2 text-gray-300 hover:text-blue-500">
@@ -103,7 +103,7 @@
                 </div>
 
                 <!-- Posts -->
-                <div class="bg-gray-800 rounded-xl shadow-sm">
+                {{-- <div class="bg-gray-800 rounded-xl shadow-sm">
                     <div class="p-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
@@ -156,8 +156,78 @@
                             </button>
                         </div>
                     </div>
+                </div> --}}
+
+                @foreach($posts as $post)
+                <div class="bg-gray-800 rounded-xl shadow-sm">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <img src="https://avatar.iran.liara.run/public/boy" alt="User" class="w-10 h-10 rounded-full" />
+                                <div class="ml-3">
+                                    <h3 class="text-white">User #{{ $post->user_id }}</h3>
+                                    <p class="text-gray-400 text-sm">{{ $post->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            <button class="text-gray-400 hover:text-white">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10m-5 4h5" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <p class="mt-2 text-gray-300">{{ $post->title }}</p>
+                       @if($post->description) 
+                       <p class="mt-2 text-gray-300">{{ $post->description }}</p>
+                       @endif
+                        
+                        @switch($post->content_type)
+                            @case('image')
+                                <div class="mt-4">
+                                    {{ asset($post->content) }}
+                                    <img src="{{ $post->content }}" alt="Uploaded Image">
+
+                                    {{-- <img src="{{ asset('storage/' . $post->content) }}" class="w-full rounded-lg" alt="Post Image"> --}}
+                                </div>
+                                @break
+                
+                            @case('link')
+                                <a href="{{ $post->project_link }}" target="_blank" class="mt-2 inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">Visit Link</a>
+                                @break
+                
+                            @case('code')
+                            <div class="mt-4 bg-gray-900 rounded-lg p-4 font-mono text-sm text-gray-200 overflow-x-auto">
+                                <pre><code class="whitespace-pre-wrap">{{ $post->content }}</code></pre>
+                            </div>
+                            
+                                @break
+                        @endswitch
+                        
+                        <div class="flex justify-between mt-4 border-t border-gray-700 pt-4">
+                            <button class="flex items-center text-gray-400 hover:text-blue-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10m-5 4h5" />
+                                </svg>
+                                <span class="ml-2">25 Comments</span>
+                            </button>
+                            <button class="flex items-center text-gray-400 hover:text-blue-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21l-8-8h16zM4 11V4a2 2 0 012-2h12a2 2 0 012 2v7" />
+                                </svg>
+                                <span class="ml-2">Like</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                @endforeach
+                
             </div>
         </div>
     </div>
+    {{-- @php
+    dd($posts);
+    @endphp --}}
+    
+
+   
 </x-app-layout>

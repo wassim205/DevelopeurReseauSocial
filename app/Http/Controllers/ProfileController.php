@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -57,4 +58,21 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function updateGithub(Request $request)
+    {
+        $validatedData = $request->validate([
+            'githubProfile' => 'required|url'
+        ]);
+
+        $request->user()->update($validatedData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'GitHub profile updated successfully!',
+            'user' => $request->user()
+        ], 200);
+    }
 }
+
+// $user = auth()->users;

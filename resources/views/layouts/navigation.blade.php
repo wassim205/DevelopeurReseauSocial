@@ -1,4 +1,4 @@
-<nav x-data="{ open: false, profileDropdown: false }" class="fixed top-0 w-full bg-gray-900 text-white z-50 border-b border-gray-700">
+<nav x-data="{ open: false }" class="fixed top-0 w-full bg-gray-900 text-white z-50 border-b border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -18,46 +18,51 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
-
-                <!-- Navigation Links - hidden on mobile -->
-                <div class="hidden md:flex space-x-4">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-gray-300 hover:text-blue-400">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('profileView')" :active="request()->routeIs('profileView')" class="text-gray-300 hover:text-blue-400">
-                        {{ __('Profile') }}
-                    </x-nav-link>
-                </div>
             </div>
 
             <!-- Icons and Settings Dropdown -->
             <div class="flex items-center space-x-4">
                 <!-- Navigation Icons - hidden on mobile -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="#" class="flex items-center space-x-1 hover:text-blue-400">
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 hover:text-blue-400" :class="{'text-blue-400': $route().current('dashboard'), 'text-gray-300': !$route().current('dashboard')}">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                         </svg>
+                        <span class="text-xs leading-none">Home</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-1 hover:text-blue-400">
+                    <a href="{{ route('profileView') }}" class="flex items-center space-x-2 hover:text-blue-400" :class="{'text-blue-400': $route().current('profileView'), 'text-gray-300': !$route().current('profileView')}">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A10.97 10.97 0 0112 15c2.284 0 4.418.72 6.121 1.804M12 12a4 4 0 100-8 4 4 0 000 8z"/>
+                        </svg>
+                        <span class="text-xs leading-none">Profile</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-2 hover:text-blue-400 relative">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
                         </svg>
-                        <span class="bg-blue-500 rounded-full w-2 h-2"></span>
+                        <span class="text-xs leading-none">Messages</span>
+                        <span class="absolute -top-1 -right-1 bg-blue-500 rounded-full w-2 h-2"></span>
                     </a>
-                    <a href="#" class="flex items-center space-x-1 hover:text-blue-400">
+                    <a href="#" class="flex items-center space-x-2 hover:text-blue-400 relative">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
-                        <span class="bg-red-500 rounded-full w-2 h-2"></span>
+                        <span class="text-xs leading-none">Notifications</span>
+                        <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></span>
                     </a>
                 </div>
-
+                
                 <!-- Profile Dropdown -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="flex items-center focus:outline-none">
+                <div class="relative" x-data="{ isOpen: false }">
+                    <button @click="isOpen = !isOpen" class="flex items-center focus:outline-none">
                         <div class="h-8 w-8 rounded-full overflow-hidden">
-                            <img src="https://avatar.iran.liara.run/public/boy" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover"/>
+                            @if(Auth::user()->githubProfile)
+                                <img src="https://github.com/{{ Auth::user()->githubProfile }}.png" alt="Profile photo"
+                                    class="w-full h-full object-cover" />
+                            @else
+                                <img src="https://avatar.iran.liara.run/public/boy" alt="Profile photo"
+                                    class="w-full h-full object-cover" />
+                            @endif
                         </div>
                         <div class="ms-1 hidden md:block">
                             <svg class="fill-current h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -66,8 +71,8 @@
                         </div>
                     </button>
 
-                    <div x-show="open" 
-                         @click.away="open = false"
+                    <div x-show="isOpen" 
+                         @click.away="isOpen = false"
                          class="absolute right-0 mt-2 w-48 py-2 bg-gray-800 rounded-md shadow-lg z-50"
                          x-transition:enter="transition ease-out duration-100"
                          x-transition:enter-start="transform opacity-0 scale-95"
@@ -127,15 +132,19 @@
         
         <!-- Mobile navigation links -->
         <div class="pt-2 pb-3 space-y-1">
-            
-            
             <!-- Mobile Navigation Icons -->
             <div class="flex justify-around py-4 border-t border-b border-gray-700">
-                <a href="dashboard" class="flex flex-col items-center space-y-1 hover:text-blue-400">
+                <a href="{{ route('dashboard') }}" class="flex flex-col items-center space-y-1 hover:text-blue-400">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                     </svg>
                     <span class="text-xs">Home</span>
+                </a>
+                <a href="{{ route('profileView') }}" class="flex flex-col items-center space-y-1 hover:text-blue-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A10.97 10.97 0 0112 15c2.284 0 4.418.72 6.121 1.804M12 12a4 4 0 100-8 4 4 0 000 8z"/>
+                    </svg>
+                    <span class="text-xs">Profile</span>
                 </a>
                 <a href="#" class="flex flex-col items-center space-y-1 hover:text-blue-400 relative">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

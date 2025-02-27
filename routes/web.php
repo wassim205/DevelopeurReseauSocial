@@ -18,9 +18,9 @@ Route::get('/profileView', function () {
 Route::get('/dashboard', [PostsController::class, 'index'])->name('dashboard');
 
 Route::post('/github/update', [ProfileController::class, 'updateGithub'])->name('github.update');
+Route::post('/skills/update', [ProfileController::class, 'updateSkills'])->name('skills.update');
+Route::post('/languages/update', [ProfileController::class, 'updateLanguages'])->name('languages.update');
 Route::resource('posts', PostsController::class);
-// Route::resource('tickets', TicketController::class);
-// Route::post('/posts/store', [PostsController::class, 'store'])->name('posts.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,4 +29,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

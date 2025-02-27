@@ -1,13 +1,21 @@
 <x-app-layout>
 
+
+
+
     <div class="min-h-screen bg-gray-900 text-gray-200">
         <!-- Profile Header -->
         <div class="bg-gray-800 py-8 mt-16">
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
                     <div class="relative">
-                        <img src="https://avatar.iran.liara.run/public/boy" alt="Photo de profil"
-                            class="rounded-full h-32 w-32 border-4 border-indigo-500" />
+                        @if(auth()->user()->githubProfile)
+                            <img src="https://github.com/{{ auth()->user()->githubProfile }}.png" alt="Photo de profil"
+                                class="rounded-full h-32 w-32 border-4 border-indigo-500" />
+                        @else
+                            <img src="https://avatar.iran.liara.run/public/boy" alt="Photo de profil"
+                                class="rounded-full h-32 w-32 border-4 border-indigo-500" />
+                        @endif
                         <div
                             class="absolute bottom-0 right-0 bg-green-500 h-5 w-5 rounded-full border-2 border-gray-800">
                         </div>
@@ -51,10 +59,16 @@
                         <!-- GitHub Account Section -->
                         <div id="github-display" class="mt-4">
                             @if(auth()->user()->githubProfile)
-                                <div class="flex items-center">
-                                    <img src="https://github.com/{{ auth()->user()->githubProfile }}.png"
-                                        alt="GitHub Profile Picture" class="h-10 w-10 rounded-full mr-2">
-                                    <span class="text-gray-100">{{ auth()->user()->githubProfile }}</span>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fab fa-github text-gray-100 text-xl"></i>
+                                    <a href="https://github.com/{{ auth()->user()->githubProfile }}"
+                                        class="text-gray-100 hover:text-blue-400">
+                                        {{ auth()->user()->githubProfile }}
+                                    </a>
+                                    <button id="open-github-form"
+                                        class="ml-2 bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-500 transition">
+                                        Update GitHub Profile
+                                    </button>
                                 </div>
                             @else
                                 <div class="flex items-center">
@@ -66,14 +80,28 @@
                                 </div>
                             @endif
                         </div>
+                        <!-- Success Alert -->
+                        <div class="mt-4">
+                            @if(session('success'))
+                                <div
+                                    class="alert alert-success p-3 mb-4 rounded bg-green-100 text-green-800 border border-green-200">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
 
+                            <!-- Error Alert -->
+                            @if($errors->any())
+                                <div
+                                    class="alert alert-error p-3 mb-4 rounded bg-red-100 text-red-800 border border-red-200">
+                                    {{ $errors->first() }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                 </div>
             </div>
         </div>
-        {{-- testing a bug fix --}}
-
 
         <!-- Overlay Background -->
         <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
@@ -98,44 +126,48 @@
 
 
         <!-- Skills Modal -->
-        <div id="skills-form" class="fixed inset-0 flex items-center justify-center hidden">
+        <form action="{{ route('skills.update') }}" method="post" id="skills-form"
+            class="fixed inset-0 flex items-center justify-center hidden">
+            @csrf
             <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
                 <h3 class="text-lg font-semibold mb-4 text-gray-100">Update Skills</h3>
-                <textarea id="skills" rows="3"
+                <textarea id="skills" rows="3" name="skills"
                     class="w-full bg-gray-700 border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm p-2 text-white"
-                    placeholder="Laravel, PHP, JavaScript"></textarea>
+                    placeholder="Laravel, PHP, JavaScript">{{ is_array(auth()->user()->skills) ? implode(', ', auth()->user()->skills) : (auth()->user()->skills ?? '') }}</textarea>
                 <div class="flex justify-end mt-4">
-                    <button id="save-skills"
+                    <button type="submit" id="save-skills"
                         class="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">
                         Save
                     </button>
-                    <button id="close-skills"
+                    <button type="button" id="close-skills"
                         class="ml-2 px-3 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700">
                         Cancel
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
 
         <!-- Languages Modal -->
-        <div id="languages-form" class="fixed inset-0 flex items-center justify-center hidden">
+        <form method="post" action="{{ route('languages.update') }}" id="languages-form"
+            class="fixed inset-0 flex items-center justify-center hidden">
+            @csrf
             <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
                 <h3 class="text-lg font-semibold mb-4 text-gray-100">Update Languages</h3>
-                <textarea id="languages" rows="2"
+                <textarea id="languages" rows="2" name="languages"
                     class="w-full bg-gray-700 border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm p-2 text-white"
-                    placeholder="English, French, Spanish"></textarea>
+                    placeholder="English, French, Spanish">{{ is_array(auth()->user()->languages) ? implode(', ', auth()->user()->languages) : (auth()->user()->languages ?? '') }}</textarea>
                 <div class="flex justify-end mt-4">
-                    <button id="save-languages"
+                    <button type="submit" id="save-languages"
                         class="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">
                         Save
                     </button>
-                    <button id="close-languages"
+                    <button type="button" id="close-languages"
                         class="ml-2 px-3 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700">
                         Cancel
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
 
         <!-- Projects Modal -->
         <div id="projects-form" class="fixed inset-0 flex items-center justify-center hidden">
@@ -260,18 +292,14 @@
                             </button>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">React</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">Vue.js</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">Laravel</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">Node.js</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">MongoDB</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">MySQL</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">Docker</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">AWS</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">CI/CD</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">TDD</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">REST API</span>
-                            <span class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">GraphQL</span>
+                            @if(is_array(auth()->user()->skills) && count(auth()->user()->skills) > 0)
+                                @foreach(auth()->user()->skills as $skill)
+                                    <span
+                                        class="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm">{{ $skill }}</span>
+                                @endforeach
+                            @else
+                                <span class="text-gray-400">No skills listed.</span>
+                            @endif
                         </div>
                     </div>
 
@@ -288,35 +316,25 @@
                             </button>
                         </div>
                         <div class="space-y-3">
-                            <div
-                                class="py-2 px-4 bg-gray-800 rounded-lg text-white shadow-md border-l-4 border-indigo-900">
-                                <span class="text-lg font-medium">Français</span>
-                            </div>
-                            <div
-                                class="py-2 px-4 bg-gray-800 rounded-lg text-white shadow-md border-l-4 border-indigo-900">
-                                <span class="text-lg font-medium">Anglais</span>
-                            </div>
-                            <div
-                                class="py-2 px-4 bg-gray-800 rounded-lg text-white shadow-md border-l-4 border-indigo-900">
-                                <span class="text-lg font-medium">Espagnol</span>
-                            </div>
-                            <div
-                                class="py-2 px-4 bg-gray-800 rounded-lg text-white shadow-md border-l-4 border-indigo-900">
-                                <span class="text-lg font-medium">Allemand</span>
-                            </div>
-                            <div
-                                class="py-2 px-4 bg-gray-800 rounded-lg text-white shadow-md border-l-4 border-indigo-900">
-                                <span class="text-lg font-medium">Italien</span>
-                            </div>
+                            @if(is_array(auth()->user()->languages) && count(auth()->user()->languages) > 0)
+                                @foreach(auth()->user()->languages as $language)
+                                    <div
+                                        class="py-2 px-4 bg-gray-800 rounded-lg text-white shadow-md border-l-4 border-indigo-900">
+                                        <span class="text-lg font-medium">{{ $language }}</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <span class="text-gray-400">No skills listed.</span>
+                            @endif
                         </div>
                     </div>
 
                     <!-- GitHub Integration -->
-                    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+                    {{-- <div class="bg-gray-800 rounded-lg shadow-lg p-6">
                         <div class="flex justify-between items-center mb-4">
                             <div class="flex items-center space-x-2">
                                 <h2 class="text-xl font-semibold">GitHub</h2>
-                                
+
                             </div>
                             <a href="https://github.com/sophiedev" target="_blank"
                                 class="text-indigo-400 hover:text-indigo-300">
@@ -358,7 +376,7 @@
                                 <div class="text-sm text-gray-400">2 pull requests il y a 5 jours</div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
 
@@ -516,75 +534,20 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Activity Feed -->
-                    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-semibold mb-6">Activité récente</h2>
-
-                        <div class="space-y-6">
-                            <div class="flex gap-4">
-                                <img src="/api/placeholder/40/40" alt="Photo de profil"
-                                    class="rounded-full h-10 w-10" />
-                                <div class="flex-1">
-                                    <div class="font-medium">Sophie Dupont a partagé un article</div>
-                                    <div class="text-gray-400 text-sm mb-2">Il y a 2 jours</div>
-                                    <div class="bg-gray-700 p-4 rounded-lg">
-                                        <h3 class="font-medium mb-2">Comment optimiser les performances de vos
-                                            applications React</h3>
-                                        <p class="text-gray-300 text-sm mb-2">
-                                            Dans cet article, je partage mes conseils pour améliorer les performances
-                                            des applications React,
-                                            y compris l'utilisation de React.memo, useCallback et plus encore...
-                                        </p>
-                                        <div class="flex space-x-4 text-sm text-indigo-400">
-                                            <button>Lire l'article</button>
-                                            <span>47 likes</span>
-                                            <span>12 commentaires</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-4">
-                                <img src="/api/placeholder/40/40" alt="Photo de profil"
-                                    class="rounded-full h-10 w-10" />
-                                <div class="flex-1">
-                                    <div class="font-medium">Sophie Dupont a ajouté un nouveau projet</div>
-                                    <div class="text-gray-400 text-sm">Il y a 1 semaine</div>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-4">
-                                <img src="/api/placeholder/40/40" alt="Photo de profil"
-                                    class="rounded-full h-10 w-10" />
-                                <div class="flex-1">
-                                    <div class="font-medium">Sophie Dupont a obtenu une nouvelle certification</div>
-                                    <div class="text-gray-400 text-sm mb-2">Il y a 2 semaines</div>
-                                    <div class="bg-gray-700 p-4 rounded-lg">
-                                        <div class="flex items-center gap-3">
-                                            <img src="/api/placeholder/40/40" alt="AWS" class="w-10 h-10 rounded" />
-                                            <div>
-                                                <div class="font-medium">AWS Certified Solutions Architect</div>
-                                                <div class="text-gray-400 text-sm">Amazon Web Services</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 text-center">
-                            <button class="text-indigo-400 hover:text-indigo-300">
-                                Voir plus d'activités
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
         const overlay = document.getElementById('overlay');
+
+        const modals = {
+            github: 'github-form',
+            skills: 'skills-form',
+            languages: 'languages-form',
+            projects: 'projects-form',
+            certifications: 'certifications-form',
+        };
 
         function showModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
@@ -596,75 +559,27 @@
             overlay.classList.add('hidden');
         }
 
-        // document.getElementById('open-github-form').addEventListener('click', () => showModal('github-form'));
-        // document.getElementById('close-github').addEventListener('click', () => closeModal('github-form'));
+        document.addEventListener('DOMContentLoaded', function () {
+            Object.keys(modals).forEach((modal) => {
+                const openModalButton = document.getElementById(`open-${modal}-form`);
+                const closeModalButton = document.getElementById(`close-${modal}`);
 
-        document.getElementById('open-skills-form').addEventListener('click', () => showModal('skills-form'));
-        document.getElementById('close-skills').addEventListener('click', () => closeModal('skills-form'));
+                if (openModalButton) {
+                    openModalButton.addEventListener('click', () => showModal(modals[modal]));
+                }
 
-        document.getElementById('open-languages-form').addEventListener('click', () => showModal('languages-form'));
-        document.getElementById('close-languages').addEventListener('click', () => closeModal('languages-form'));
-
-        document.getElementById('open-projects-form').addEventListener('click', () => showModal('projects-form'));
-        document.getElementById('close-projects').addEventListener('click', () => closeModal('projects-form'));
-
-        document.getElementById('open-certifications-form').addEventListener('click', () => showModal('certifications-form'));
-        document.getElementById('close-certifications').addEventListener('click', () => closeModal('certifications-form'));
-
-
-        document.getElementById('save-github').addEventListener('click', async function (e) {
-            e.preventDefault();
-            const githubProfile = document.getElementById('githubProfile').value;
-            try {
-                const response = await fetch("{{ route('github.update') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({ githubProfile: githubProfile })
-                });
-                const data = await response.json();
-                console.log(data);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        });
-
-
-
-        $('#save-github').on('click', function (e) {
-            e.preventDefault();
-            const githubProfile = $('#githubProfile').val();
-
-            $.ajax({
-                url: '/github/update',
-                method: 'POST',
-                data: { githubProfile: githubProfile },
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
-                    if (response.success) {
-                        $('#github-display').html(
-                            '<div class="flex items-center">' +
-                            '<img src="https://github.com/' + response.user.githubProfile + '.png" alt="GitHub Profile Picture" class="h-10 w-10 rounded-full mr-2">' +
-                            '<span class="text-gray-100">' + response.user.githubProfile + '</span>' +
-                            '</div>'
-                        );
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error updating GitHub profile:', error);
+                if (closeModalButton) {
+                    closeModalButton.addEventListener('click', () => closeModal(modals[modal]));
                 }
             });
-        });
-        $('#save-github').on('click', function () {
-            $('#github-form').addClass('hidden');
-            $('#overlay').addClass('hidden');
-        });
 
+            const githubConnectButton = document.getElementById('open-github-form');
+            console.log(githubConnectButton);
+
+            if (githubConnectButton) {
+                githubConnectButton.addEventListener('click', () => showModal(modals.github));
+            }
+        });
     </script>
 
 </x-app-layout>

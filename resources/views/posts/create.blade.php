@@ -15,9 +15,9 @@
                     <select name="content_type" id="content_type"
                         class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500"
                         onchange="toggleContentInput()">
-                        <option value="link">Link</option>
-                        <option value="code">Code</option>
-                        <option value="image">Image</option>
+                        <option value="link" {{ request('content_type') == 'link' ? 'selected' : '' }}>Link</option>
+                        <option value="code" {{ request('content_type') == 'code' ? 'selected' : '' }}>Code</option>
+                        <option value="image" {{ request('content_type') == 'image' ? 'selected' : '' }}>Image</option>
                     </select>
                 </div>
 
@@ -71,5 +71,10 @@
             document.getElementById('code_input').style.display = contentType === 'code' ? 'block' : 'none';
             document.getElementById('image_input').style.display = contentType === 'image' ? 'block' : 'none';
         }
+
+        // Run on page load to handle query params
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleContentInput();
+        });
     </script>
 </x-app-layout>

@@ -32,4 +32,13 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function hashtags(){
+        return $this->belongsToMany(Hashtag::class, 'post_hashtag');
+    }
+
+    public function isLikedBy($user)
+    {
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
+use App\Models\Hashtag;
 use App\Models\Post;
+use App\Models\Like;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +18,13 @@ class PostsController extends Controller
      */
     public function index()
     {
-        // Log::info('Index method reached');
 
-        $posts = Post::latest()->get(); // Add parentheses after get
-        // dd($posts);
-        return view('dashboard', compact('posts'));
+        $posts = Post::latest()->get();
+            $trendingTags = Hashtag::withCount('posts')
+                ->orderByDesc('posts_count')
+                ->limit(5)
+                ->get();
+        return view('dashboard', compact('posts', 'trendingTags'));
     }
     /**
      * Show the form for creating a new resource.
@@ -44,6 +48,8 @@ class PostsController extends Controller
             'description' => 'nullable|string',
             'project_link' => 'nullable|url',
             'languages_used' => 'nullable|string',
+            'hashtags' => 'nullable|string|max:255',
+
         ]);
 
         $data = [
@@ -54,6 +60,7 @@ class PostsController extends Controller
             'project_link' => $request->project_link,
             'languages_used' => json_encode($request->languages_used),
         ];
+        // dd($data);
         switch ($request->content_type) {
             case 'text':
             case 'code':
@@ -69,7 +76,23 @@ class PostsController extends Controller
         }
 
         try {
-            Post::create($data);
+            $post = Post::create($data);
+            if ($request->filled('hashtags')) {
+                $hashtags = explode(' ', $request->hashtags);
+                foreach ($hashtags as $tag) {
+                    $tag = trim(strtolower($tag));
+                    if (!empty($tag)) {
+                        if (!str_starts_with($tag, '#')) {
+                            $tag = '#' . $tag;
+                        }
+                        $hashtag = Hashtag::firstOrCreate(['name' => $tag]);
+                        // dd($hashtag);
+                        $post->hashtags()->attach($hashtag->id);
+                    }
+                }
+            }
+
+
             return redirect()->route('dashboard')->with('success', 'Post created successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to create post: ' . $e->getMessage());
@@ -109,47 +132,56 @@ class PostsController extends Controller
         //
     }
 
-    
+
     public function toggleLike(Post $post)
-{
-    $like = $post->likes()->where('user_id', Auth::id())->first();
-    if ($like) {
-        // If the user already liked, remove the like
-        $like->delete();
-        $liked = false;
-    } else {
-        // Otherwise, create a new like
-        $post->likes()->create([
-            'user_id' => Auth::id(),
-        ]);
-        $liked = true;
+    {
+        $like = $post->likes()->where('user_id', Auth::id())->first();
+        if ($like) {
+            // If the user already liked, remove the like
+            $like->delete();
+            $liked = false;
+        } else {
+            // Otherwise, create a new like
+            $post->likes()->create([
+                'user_id' => Auth::id(),
+            ]);
+            $liked = true;
+        }
+
+        // Get the updated count of likes
+        $count = $post->likes()->count();
+        return response()->json(['liked' => $liked, 'count' => $count]);
     }
 
-    // Get the updated count of likes
-    $count = $post->likes()->count();
-    return response()->json(['liked' => $liked, 'count' => $count]);
-}
+    public function storeComment(Request $request, Post $post)
+    {
+        $validatedData = $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
 
-public function storeComment(Request $request, Post $post)
-{
-    $validatedData = $request->validate([
-        'content' => 'required|string|max:1000',
-    ]);
+        $comment = new Comment();
+        $comment->user_id = Auth::id();
+        $comment->post_id = $post->id;
+        $comment->content = $validatedData['content'];
+        $comment->save();
 
-    $comment = new Comment();
-    $comment->user_id = Auth::id();
-    $comment->post_id = $post->id;
-    $comment->content = $validatedData['content'];
-    $comment->save();
+        // Return a structured JSON with user info
+        return response()->json([
+            'user' => [
+                'username' => $comment->user->username,
+                'githubProfile' => $comment->user->githubProfile,
+            ],
+            'content' => $comment->content,
+        ]);
+    }
 
-    // Return a structured JSON with user info
-    return response()->json([
-        'user' => [
-            'username' => $comment->user->username,
-            'githubProfile' => $comment->user->githubProfile,
-        ],
-        'content' => $comment->content,
-    ]);
-}
 
+    private function parseAndAttachHashtags(Post $post, string $content)
+    {
+        preg_match_all('/#([a-zA-Z0-9]+)/', $content, $matches);
+        foreach ($matches[1] as $tag) {
+            $hashtag = Hashtag::firstOrCreate(['name' => strtolower($tag)]);
+            $post->hashtags()->attach($hashtag->id);
+        }
+    }
 }

@@ -1,24 +1,26 @@
 <x-app-layout>
 
-    <div class="mt-4">
-        @if(session('success'))
-            <div
-                class="alert alert-success p-3 mb-4 rounded bg-green-100 text-green-800 border border-green-200">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <!-- Error Alert -->
-        @if($errors->any())
-            <div
-                class="alert alert-error p-3 mb-4 rounded bg-red-100 text-red-800 border border-red-200">
-                {{ $errors->first() }}
-            </div>
-        @endif
-    </div>
+   
 
     <div class="max-w-7xl mx-auto pt-20 px-4">
+        <div class="mt-4">
+            @if(session('success'))
+                <div
+                    class="alert alert-success p-3 mb-4 rounded bg-green-100 text-green-800 border border-green-200">
+                    {{ session('success') }}
+                </div>
+            @endif
+    
+            <!-- Error Alert -->
+            @if($errors->any())
+                <div
+                    class="alert alert-error p-3 mb-4 rounded bg-red-100 text-red-800 border border-red-200">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+        </div>
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
             <!-- Profile Card -->
             <div class="space-y-6">
                 <div class="bg-gray-800 rounded-xl shadow-sm overflow-hidden">
@@ -81,20 +83,15 @@
                 <div class="bg-gray-800 rounded-xl shadow-sm p-4">
                     <h3 class="font-semibold text-white mb-4">Trending Tags</h3>
                     <div class="space-y-2">
-                        <a href="#" class="flex items-center justify-between hover:bg-gray-700 p-2 rounded">
-                            <span class="text-gray-300">#javascript</span>
-                            <span class="text-gray-400 text-sm">2.4k</span>
-                        </a>
-                        <a href="#" class="flex items-center justify-between hover:bg-gray-700 p-2 rounded">
-                            <span class="text-gray-300">#react</span>
-                            <span class="text-gray-400 text-sm">1.8k</span>
-                        </a>
-                        <a href="#" class="flex items-center justify-between hover:bg-gray-700 p-2 rounded">
-                            <span class="text-gray-300">#webdev</span>
-                            <span class="text-gray-400 text-sm">1.2k</span>
-                        </a>
+                        @foreach($trendingTags as $tag)
+                            <p class="flex items-center justify-between hover:bg-gray-700 p-2 rounded">
+                                <span class="text-gray-300">{{ $tag->name }}</span>
+                                <span class="text-gray-400 text-sm">{{ $tag->posts_count }}</span>
+                            </p>
+                        @endforeach
                     </div>
                 </div>
+                
             </div>
 
             <!-- Main Feed -->
@@ -169,6 +166,17 @@
                        @if($post->description) 
                        <p class="mt-2 text-gray-300">{{ $post->description }}</p>
                        @endif
+                       <!-- Affichage des hashtags -->
+<div class="flex flex-wrap mt-2">
+    @if ($post->hashtags->isNotEmpty())
+        @foreach ($post->hashtags as $hashtag)
+            <p
+               class="bg-gray-700 text-gray-300 rounded px-2 py-1 mr-2 mt-1 hover:bg-gray-600">
+                {{ $hashtag->name }}
+            </p>
+        @endforeach
+    @endif
+</div>
                         
                         @switch($post->content_type)
                             @case('image')
@@ -199,12 +207,17 @@
                             </button>
                         
                             <!-- Like button -->
-                            <button id="like-button-{{ $post->id }}" data-post-id="{{ $post->id }}" class="flex items-center text-gray-400 hover:text-blue-500" onclick="likePost({{ $post->id }})">
+                            <button id="like-button-{{ $post->id }}" data-post-id="{{ $post->id }}"
+                                class="flex items-center {{ $post->isLikedBy(auth()->user()) ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500' }}"
+                                onclick="likePost({{ $post->id }})">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                                 </svg>
                                 <span class="ml-2">{{ $post->likes->count() }} Like{{ $post->likes->count() != 1 ? 's' : '' }}</span>
                             </button>
+                            
+                            
                         </div>
                         
                         <!-- Comment section (hidden by default) -->
@@ -213,7 +226,15 @@
                             <form id="comment-form-{{ $post->id }}" class="mb-4" onsubmit="submitComment(event, {{ $post->id }})">
                                 @csrf
                                 <div class="flex items-start">
-                                    <img src="https://github.com/{{ auth()->user()->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full">
+                                    {{-- <img src="https://github.com/{{ auth()->user()->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full"> --}}
+
+                                    @if (auth()->user()->githubProfile)
+                                    <img src="https://github.com/{{  auth()->user()->githubProfile }}.png" alt="Avatar"
+                                        class="w-8 h-8 rounded-full" />
+                                    @else
+                                    <img src="https://avatar.iran.liara.run/public/boy" alt="Avatar"
+                                        class="w-8 h-8 rounded-full" />
+                                    @endif
                                     <div class="ml-2 flex-grow">
                                         <textarea name="content" placeholder="Ajouter un commentaire..." class="w-full bg-gray-700 text-gray-200 p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 resize-none"></textarea>
                                         <button type="submit" class="mt-2 px-4 py-1 text-white bg-blue-500 hover:bg-blue-600 rounded-md text-sm transition duration-200">Publier</button>
@@ -225,7 +246,15 @@
                             <div id="comments-container-{{ $post->id }}" class="space-y-3 pl-2">
                                 @foreach ($post->comments as $comment)
                                     <div class="flex items-start">
-                                        <img src="https://github.com/{{ $comment->user->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full">
+                                        {{-- <img src="https://github.com/{{ $comment->user->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full"> --}}
+
+                                        @if ( $comment->user->githubProfile)
+                                        <img src="https://github.com/{{  $comment->user->githubProfile }}.png" alt="Avatar"
+                                            class="w-8 h-8 rounded-full" />
+                                        @else
+                                        <img src="https://avatar.iran.liara.run/public/boy" alt="Avatar"
+                                            class="w-8 h-8 rounded-full" />
+                                        @endif
                                         <div class="ml-2 bg-gray-700 p-3 rounded-lg flex-grow">
                                             <div class="flex justify-between">
                                                 <span class="font-medium text-gray-200">{{ $comment->user->username }}</span>
@@ -264,6 +293,8 @@
                                 const likeButton = document.getElementById(`like-button-${postId}`);
                                 const likeCount = likeButton.querySelector('span');
                                 likeCount.textContent = `${data.count} ${data.count !== 1 ? 'Likes' : 'Like'}`;
+                                // likeButton.classList.add('text-blue-500');
+
                                 
                                 if (data.liked) {
                                     likeButton.classList.add('text-blue-500');
@@ -306,7 +337,7 @@
                                 
                                 commentsContainer.prepend(commentElement);
                                 form.reset();
-                                
+
                                 const commentButton = document.querySelector(`button[onclick="toggleComments(${postId})"] span`);
                                 const count = parseInt(commentButton.textContent.split(' ')[0]) + 1;
                                 commentButton.textContent = `${count} ${count !== 1 ? 'Comments' : 'Comment'}`;

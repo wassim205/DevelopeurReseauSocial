@@ -1,5 +1,25 @@
 <x-app-layout>
+
+
+    
+    
     <div class="max-w-4xl mx-auto pt-20 px-6">
+        <div class="mt-4">
+            @if(session('success'))
+                <div
+                    class="alert alert-success p-3 mb-4 rounded bg-green-100 text-green-800 border border-green-200">
+                    {{ session('success') }}
+                </div>
+            @endif
+    
+            <!-- Error Alert -->
+            @if($errors->any())
+                <div
+                    class="alert alert-error p-3 mb-4 rounded bg-red-100 text-red-800 border border-red-200">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+        </div>
         <div class="bg-gray-800 rounded-xl shadow-sm p-6">
             <h2 class="text-2xl font-bold text-white mb-4">Create a New Post</h2>
             <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" class="space-y-4">
@@ -45,6 +65,7 @@
                         class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
 
+
                 <div>
                     <label for="project_link" class="block text-gray-300 font-medium">Project Link</label>
                     <input type="url" name="project_link"
@@ -55,6 +76,12 @@
                     <label for="languages_used" class="block text-gray-300 font-medium">Languages Used</label>
                     <input type="text" name="languages_used"
                         class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="hashtags" class="block text-gray-300 font-medium">Hashtags</label>
+                    <input type="text" name="hashtags"
+                        class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500"
+                        placeholder="#javascript #react #webdev">
                 </div>
 
                 <button type="submit"

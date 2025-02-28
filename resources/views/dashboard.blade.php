@@ -190,53 +190,51 @@
                         @endswitch
                         
                         <div class="flex justify-between mt-4 border-t border-gray-700 pt-4">
-                            {{-- <button class="flex items-center text-gray-400 hover:text-blue-500">
+                            <!-- Comment button - toggles comment form visibility -->
+                            <button class="flex items-center text-gray-400 hover:text-blue-500" onclick="toggleComments({{ $post->id }})">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10m-5 4h5" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                                 </svg>
-                                <span class="ml-2">25 Comments</span>
-                            </button> --}}
-                            {{-- <button class="flex items-center text-gray-400 hover:text-blue-500">
+                                <span class="ml-2">{{ $post->comments->count() }} Comment{{ $post->comments->count() != 1 ? 's' : '' }}</span>
+                            </button>
+                        
+                            <!-- Like button -->
+                            <button id="like-button-{{ $post->id }}" data-post-id="{{ $post->id }}" class="flex items-center text-gray-400 hover:text-blue-500" onclick="likePost({{ $post->id }})">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21l-8-8h16zM4 11V4a2 2 0 012-2h12a2 2 0 012 2v7" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                                 </svg>
-                                <span class="ml-2">Like</span>
-                            </button> --}}
-
-                            <!-- Formulaire de commentaire -->
-<div class="mt-4">
-    <form action="{{ route('posts.comment', $post) }}" method="POST">
-        @csrf
-        <div class="flex">
-            <img src="{{ auth()->user()->profile_photo_url }}" alt="Avatar" class="w-8 h-8 rounded-full">
-            <textarea name="content" placeholder="Ajouter un commentaire..." class="ml-2 w-full p-2 border rounded"></textarea>
-        </div>
-        <button type="submit" class="mt-2 px-4 py-1 text-white bg-blue-500 rounded">Publier</button>
-    </form>
-</div>
-
-<!-- Affichage des commentaires -->
-<div class="mt-4 space-y-2">
-    @foreach ($post->comments as $comment)
-        <div class="flex items-start space-x-2">
-            <img src="{{ $comment->user->profile_photo_url }}" alt="Avatar" class="w-6 h-6 rounded-full">
-            <div>
-                <strong>{{ $comment->user->name }}</strong>
-                <p>{{ $comment->content }}</p>
-                <small>{{ $comment->created_at->diffForHumans() }}</small>
-            </div>
-        </div>
-    @endforeach
-</div>
-
-                            <!-- Bouton Like -->
-                            <div class="flex items-center space-x-2">
-                                <form action="{{ route('posts.like', $post) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="text-blue-500 hover:underline">
-                                        {{ $post->likes->count() }} Like{{ $post->likes->count() != 1 ? 's' : '' }}
-                                    </button>
-                                </form>
+                                <span class="ml-2">{{ $post->likes->count() }} Like{{ $post->likes->count() != 1 ? 's' : '' }}</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Comment section (hidden by default) -->
+                        <div id="comment-section-{{ $post->id }}" class="mt-4 hidden">
+                            <!-- Comment form -->
+                            <form id="comment-form-{{ $post->id }}" class="mb-4" onsubmit="submitComment(event, {{ $post->id }})">
+                                @csrf
+                                <div class="flex items-start">
+                                    <img src="https://github.com/{{ auth()->user()->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full">
+                                    <div class="ml-2 flex-grow">
+                                        <textarea name="content" placeholder="Ajouter un commentaire..." class="w-full bg-gray-700 text-gray-200 p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                                        <button type="submit" class="mt-2 px-4 py-1 text-white bg-blue-500 hover:bg-blue-600 rounded-md text-sm transition duration-200">Publier</button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <!-- Comments list -->
+                            <div id="comments-container-{{ $post->id }}" class="space-y-3 pl-2">
+                                @foreach ($post->comments as $comment)
+                                    <div class="flex items-start">
+                                        <img src="https://github.com/{{ $comment->user->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full">
+                                        <div class="ml-2 bg-gray-700 p-3 rounded-lg flex-grow">
+                                            <div class="flex justify-between">
+                                                <span class="font-medium text-gray-200">{{ $comment->user->username }}</span>
+                                                <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <p class="text-gray-300 mt-1">{{ $comment->content }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -245,5 +243,75 @@
             </div>
         </div>
     </div>
-   
+                        
+                        <script>
+                        function toggleComments(postId) {
+                            const commentSection = document.getElementById(`comment-section-${postId}`);
+                            commentSection.classList.toggle('hidden');
+                        }
+                        
+                        function likePost(postId) {
+                            fetch(`/posts/${postId}/like`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                const likeButton = document.getElementById(`like-button-${postId}`);
+                                const likeCount = likeButton.querySelector('span');
+                                likeCount.textContent = `${data.count} ${data.count !== 1 ? 'Likes' : 'Like'}`;
+                                
+                                if (data.liked) {
+                                    likeButton.classList.add('text-blue-500');
+                                    likeButton.classList.remove('text-gray-400');
+                                } else {
+                                    likeButton.classList.add('text-gray-400');
+                                    likeButton.classList.remove('text-blue-500');
+                                }
+                            });
+                        }
+                        
+                        function submitComment(event, postId) {
+                            event.preventDefault();
+                            const form = document.getElementById(`comment-form-${postId}`);
+                            const formData = new FormData(form);
+                            
+                            fetch(`/posts/${postId}/comments`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                const commentsContainer = document.getElementById(`comments-container-${postId}`);
+                                
+                                const commentElement = document.createElement('div');
+                                commentElement.className = 'flex items-start';
+                                commentElement.innerHTML = `
+                                    <img src="https://github.com/${data.user.githubProfile}.png" alt="Avatar" class="w-8 h-8 rounded-full">
+                                    <div class="ml-2 bg-gray-700 p-3 rounded-lg flex-grow">
+                                        <div class="flex justify-between">
+                                            <span class="font-medium text-gray-200">${data.user.username}</span>
+                                            <span class="text-xs text-gray-400">just now</span>
+                                        </div>
+                                        <p class="text-gray-300 mt-1">${data.content}</p>
+                                    </div>
+                                `;
+                                
+                                commentsContainer.prepend(commentElement);
+                                form.reset();
+                                
+                                const commentButton = document.querySelector(`button[onclick="toggleComments(${postId})"] span`);
+                                const count = parseInt(commentButton.textContent.split(' ')[0]) + 1;
+                                commentButton.textContent = `${count} ${count !== 1 ? 'Comments' : 'Comment'}`;
+                            });
+                        }
+                        </script>
+
 </x-app-layout>

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Post;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 class PostsController extends Controller
 {
     /**
@@ -109,32 +111,45 @@ class PostsController extends Controller
 
     
     public function toggleLike(Post $post)
-    {
-        $like = $post->likes()->where('user_id', Auth::id())->first();
-
-        if ($like) {
-            $like->delete();
-        } else {
-            $post->likes()->create([
-                'user_id' => Auth::id(),
-            ]);
-        }
-
-        return back();
-    }
-
-    public function storeComment(Request $request, Post $post)
-    {
-        $request->validate([
-            'content' => 'required|string|max:1000',
+{
+    $like = $post->likes()->where('user_id', Auth::id())->first();
+    if ($like) {
+        // If the user already liked, remove the like
+        $like->delete();
+        $liked = false;
+    } else {
+        // Otherwise, create a new like
+        $post->likes()->create([
+            'user_id' => Auth::id(),
         ]);
-
-        $comment = new Comment();
-        $comment->user_id = Auth::id();
-        $comment->post_id = $post->id;
-        $comment->content = $request->input('content');
-        $comment->save();
-
-        return back();
+        $liked = true;
     }
+
+    // Get the updated count of likes
+    $count = $post->likes()->count();
+    return response()->json(['liked' => $liked, 'count' => $count]);
+}
+
+public function storeComment(Request $request, Post $post)
+{
+    $validatedData = $request->validate([
+        'content' => 'required|string|max:1000',
+    ]);
+
+    $comment = new Comment();
+    $comment->user_id = Auth::id();
+    $comment->post_id = $post->id;
+    $comment->content = $validatedData['content'];
+    $comment->save();
+
+    // Return a structured JSON with user info
+    return response()->json([
+        'user' => [
+            'username' => $comment->user->username,
+            'githubProfile' => $comment->user->githubProfile,
+        ],
+        'content' => $comment->content,
+    ]);
+}
+
 }

@@ -13,15 +13,16 @@ Route::get('/profileView', function () {
 
 
 // Routes pour les likes
-Route::post('/posts/{post}/like', [PostsController::class, 'toggleLike'])->name('posts.like');
+// Route::post('/posts/{post}/like', [PostsController::class, 'toggleLike'])->name('posts.like');
 
 // Routes pour les commentaires
-Route::post('/posts/{post}/comment', [PostsController::class, 'storeComment'])->name('posts.comment');
+// Route::post('/posts/{post}/comment', [PostsController::class, 'storeComment'])->name('posts.comment');
 
-// Route::middleware('api')->group(function () {
-//     Route::post('/posts/{post}/like', [PostsController::class, 'toggleLike'])->name('posts.like');
-//     Route::post('/posts/{post}/comment', [PostsController::class, 'storeComment'])->name('posts.comment');
-// });
+Route::middleware('api')->group(function () {
+    Route::post('/posts/{post}/like', [PostsController::class, 'toggleLike'])->name('posts.like');
+    Route::post('/posts/{post}/comments', [PostsController::class, 'storeComment'])->name('posts.comment');
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

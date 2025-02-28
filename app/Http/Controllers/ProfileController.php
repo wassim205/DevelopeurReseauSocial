@@ -168,7 +168,7 @@ class ProfileController extends Controller
             'editIndex' => (int)$index
         ]);
     }
-    
+
 
     public function projectUpdate(Request $request, $index)
     {
@@ -179,7 +179,7 @@ class ProfileController extends Controller
             'description' => 'required|string',
             'link' => 'nullable|url',
         ]);
-    
+
         $projects = $request->user()->projects;
         $projects[$index] = [
             'title' => $request->input('title'),
@@ -189,12 +189,12 @@ class ProfileController extends Controller
             'link' => $request->input('link'),
             'languages' => $projects[$index]['languages']
         ];
-    
+
         $request->user()->update(['projects' => $projects]);
-    
+
         return redirect()->route('profileView')->with('success', 'Project updated successfully.');
     }
-    
+
 
     public function deleteProject($index)
     {

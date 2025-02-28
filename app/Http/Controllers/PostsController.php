@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Comment;
 use App\Models\Post;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-
 class PostsController extends Controller
 {
     /**
@@ -69,8 +67,6 @@ class PostsController extends Controller
         }
 
         try {
-            // dd($request->content_type);
-            // dd($data);
             Post::create($data);
             return redirect()->route('dashboard')->with('success', 'Post created successfully!');
         } catch (\Exception $e) {
@@ -109,5 +105,36 @@ class PostsController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    
+    public function toggleLike(Post $post)
+    {
+        $like = $post->likes()->where('user_id', Auth::id())->first();
+
+        if ($like) {
+            $like->delete();
+        } else {
+            $post->likes()->create([
+                'user_id' => Auth::id(),
+            ]);
+        }
+
+        return back();
+    }
+
+    public function storeComment(Request $request, Post $post)
+    {
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $comment = new Comment();
+        $comment->user_id = Auth::id();
+        $comment->post_id = $post->id;
+        $comment->content = $request->input('content');
+        $comment->save();
+
+        return back();
     }
 }

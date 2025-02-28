@@ -140,7 +140,6 @@
                 </div>
 
             {{-- POSTS --}}
-
                 @foreach($posts as $post)
                 <div class="bg-gray-800 rounded-xl shadow-sm">
                     <div class="p-4">
@@ -191,23 +190,58 @@
                         @endswitch
                         
                         <div class="flex justify-between mt-4 border-t border-gray-700 pt-4">
-                            <button class="flex items-center text-gray-400 hover:text-blue-500">
+                            {{-- <button class="flex items-center text-gray-400 hover:text-blue-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10m-5 4h5" />
                                 </svg>
                                 <span class="ml-2">25 Comments</span>
-                            </button>
-                            <button class="flex items-center text-gray-400 hover:text-blue-500">
+                            </button> --}}
+                            {{-- <button class="flex items-center text-gray-400 hover:text-blue-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21l-8-8h16zM4 11V4a2 2 0 012-2h12a2 2 0 012 2v7" />
                                 </svg>
                                 <span class="ml-2">Like</span>
-                            </button>
+                            </button> --}}
+
+                            <!-- Formulaire de commentaire -->
+<div class="mt-4">
+    <form action="{{ route('posts.comment', $post) }}" method="POST">
+        @csrf
+        <div class="flex">
+            <img src="{{ auth()->user()->profile_photo_url }}" alt="Avatar" class="w-8 h-8 rounded-full">
+            <textarea name="content" placeholder="Ajouter un commentaire..." class="ml-2 w-full p-2 border rounded"></textarea>
+        </div>
+        <button type="submit" class="mt-2 px-4 py-1 text-white bg-blue-500 rounded">Publier</button>
+    </form>
+</div>
+
+<!-- Affichage des commentaires -->
+<div class="mt-4 space-y-2">
+    @foreach ($post->comments as $comment)
+        <div class="flex items-start space-x-2">
+            <img src="{{ $comment->user->profile_photo_url }}" alt="Avatar" class="w-6 h-6 rounded-full">
+            <div>
+                <strong>{{ $comment->user->name }}</strong>
+                <p>{{ $comment->content }}</p>
+                <small>{{ $comment->created_at->diffForHumans() }}</small>
+            </div>
+        </div>
+    @endforeach
+</div>
+
+                            <!-- Bouton Like -->
+                            <div class="flex items-center space-x-2">
+                                <form action="{{ route('posts.like', $post) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="text-blue-500 hover:underline">
+                                        {{ $post->likes->count() }} Like{{ $post->likes->count() != 1 ? 's' : '' }}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
                 @endforeach
-                
             </div>
         </div>
     </div>

@@ -341,7 +341,7 @@
                                     </div>
                                 @endforeach
                             @else
-                                <span class="text-gray-400">No skills listed.</span>
+                                <span class="text-gray-400">No languages listed.</span>
                             @endif
                         </div>
                     </div>
@@ -413,12 +413,6 @@
                                     </div>
                         
                                     <!-- Edit Form -->
-                                    {{-- @php
-                                    dump(isset($editIndex));  
-                                    dump($editIndex === $index);  
-                                    dump($editIndex);  
-                                    dump($index);  
-                                    @endphp --}}
                                     @if(isset($editIndex) && $editIndex == $index)
                                         <div class="border-t border-gray-700 pt-4">
                                             <h2 class="text-lg font-semibold text-white mb-4">Edit Project</h2>

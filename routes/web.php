@@ -13,6 +13,8 @@ Route::get('/profileView', function () {
 })->name('profileView');
 
 
+Route::get('/search', [SearchController::class, 'search'])->name('search');
+
 // Routes pour les likes
 // Route::post('/posts/{post}/like', [PostsController::class, 'toggleLike'])->name('posts.like');
 

@@ -5,20 +5,21 @@
             <div class="flex items-center space-x-4">
                 <!-- Logo -->
                 <div class="text-2xl font-bold text-blue-400">
-                    <a href="{{ route('dashboard') }}">&lt;DevConnect/&gt;</a>
+                    <a href="{{ route('dashboard') }}"><DevConnect/></a>
                 </div>
-
-                <!-- Search bar - hidden on mobile -->
+            
+                <!-- Barre de rechercher  -->
                 <div class="relative hidden md:block">
-                    {{-- action="{{ route('search') }}" --}}
-                    <form method="GET" class="flex items-center">
+                    <form id="search-form" class="flex items-center">
+                        {{-- @csrf --}}
                         <input type="text" name="query"
-                               placeholder="Search developers, posts, or #tags"
+                               placeholder="Search posts..."
                                class="bg-gray-800 pl-10 pr-4 py-2 rounded-lg w-64 lg:w-96 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-200"
+                               autocomplete="off"
                         >
                         <button type="submit" class="absolute right-2 top-2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </button>
                     </form>

@@ -137,18 +137,15 @@ class PostsController extends Controller
     {
         $like = $post->likes()->where('user_id', Auth::id())->first();
         if ($like) {
-            // If the user already liked, remove the like
             $like->delete();
             $liked = false;
         } else {
-            // Otherwise, create a new like
             $post->likes()->create([
                 'user_id' => Auth::id(),
             ]);
             $liked = true;
         }
 
-        // Get the updated count of likes
         $count = $post->likes()->count();
         return response()->json(['liked' => $liked, 'count' => $count]);
     }

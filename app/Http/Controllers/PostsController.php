@@ -19,7 +19,10 @@ class PostsController extends Controller
     public function index()
     {
 
-        $posts = Post::latest()->get();
+        $posts = Post::with(['comments' => function ($query) {
+            $query->latest();
+        }])->latest()->get();
+        
             $trendingTags = Hashtag::withCount('posts')
                 ->orderByDesc('posts_count')
                 ->limit(5)

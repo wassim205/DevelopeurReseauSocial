@@ -18,8 +18,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'username', 'email', 'password', 'biography', 
-        'skills', 'languages', 'projects', 'githubProfile'
+        'username',
+        'email',
+        'password',
+        'biography',
+        'skills',
+        'languages',
+        'projects',
+        'githubProfile'
     ];
 
     protected $casts = [
@@ -51,7 +57,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function posts(){
+    public function posts()
+    {
         return $this->hasMany(Post::class);
     }
 
@@ -63,5 +70,15 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function connections()
+    {
+        return $this->hasMany(Connection::class, 'user_id');
+    }
+
+    public function connectedUsers()
+    {
+        return $this->belongsToMany(User::class, 'connections', 'user_id', 'connection_id');
     }
 }

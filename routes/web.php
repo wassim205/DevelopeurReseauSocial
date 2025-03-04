@@ -3,6 +3,7 @@
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ConnectionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,6 +15,12 @@ Route::get('/profileView', function () {
 
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');
+
+Route::post('/connections/add/{receiverId}', [ConnectionController::class, 'add'])->name('connections.add');
+Route::patch('/connections/accept/{connectionId}', [ConnectionController::class, 'accept'])->name('connections.accept');
+Route::delete('/connections/decline/{connectionId}', [ConnectionController::class, 'decline'])->name('connections.decline');
+Route::delete('/connections/remove/{connectionId}', [ConnectionController::class, 'remove'])->name('connections.remove');
+
 
 // Routes pour les likes
 // Route::post('/posts/{post}/like', [PostsController::class, 'toggleLike'])->name('posts.like');

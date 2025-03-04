@@ -153,7 +153,7 @@
                     <div class="p-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
-                                {{-- <img src="https://avatar.iran.liara.run/public/boy" alt="User" class="w-10 h-10 rounded-full" /> --}}
+                               
                                 @if($post->user->githubProfile)
                             <img src="https://github.com/{{ $post->user->githubProfile }}.png" alt="Photo de profil"
                                 class="w-10 h-10 rounded-full" loading="lazy" />
@@ -177,17 +177,17 @@
                        @if($post->description) 
                        <p class="mt-2 text-gray-300">{{ $post->description }}</p>
                        @endif
-                       <!-- Affichage des hashtags -->
-<div class="flex flex-wrap mt-2">
-    @if ($post->hashtags->isNotEmpty())
-        @foreach ($post->hashtags as $hashtag)
-            <p
-               class="bg-gray-700 text-gray-300 rounded px-2 py-1 mr-2 mt-1 hover:bg-gray-600">
-                {{ $hashtag->name }}
-            </p>
-        @endforeach
-    @endif
-</div>
+                      
+                        <div class="flex flex-wrap mt-2">
+                            @if ($post->hashtags->isNotEmpty())
+                                @foreach ($post->hashtags as $hashtag)
+                                    <p
+                                    class="bg-gray-700 text-gray-300 rounded px-2 py-1 mr-2 mt-1 hover:bg-gray-600">
+                                        {{ $hashtag->name }}
+                                    </p>
+                                @endforeach
+                            @endif
+                        </div>
                         
                         @switch($post->content_type)
                             @case('image')
@@ -209,7 +209,6 @@
                         @endswitch
                         
                         <div class="flex justify-between mt-4 border-t border-gray-700 pt-4">
-                            <!-- Comment button - toggles comment form visibility -->
                             <button class="flex items-center text-gray-400 hover:text-blue-500" onclick="toggleComments({{ $post->id }})">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -217,7 +216,6 @@
                                 <span class="ml-2">{{ $post->comments->count() }} Comment{{ $post->comments->count() != 1 ? 's' : '' }}</span>
                             </button>
                         
-                            <!-- Like button -->
                             <button id="like-button-{{ $post->id }}" data-post-id="{{ $post->id }}"
                                 class="flex items-center {{ $post->isLikedBy(auth()->user()) ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500' }}"
                                 onclick="likePost({{ $post->id }})">
@@ -229,14 +227,12 @@
                             </button>
                         </div>
                         
-                        <!-- Comment section (hidden by default) -->
                         <div id="comment-section-{{ $post->id }}" class="mt-4 hidden">
-                            <!-- Comment form -->
+                        
                             <form id="comment-form-{{ $post->id }}" class="mb-4" onsubmit="submitComment(event, {{ $post->id }})">
                                 @csrf
                                 <div class="flex items-start">
-                                    {{-- <img src="https://github.com/{{ auth()->user()->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full"> --}}
-
+                                   
                                     @if (auth()->user()->githubProfile)
                                     <img src="https://github.com/{{  auth()->user()->githubProfile }}.png" alt="Avatar"
                                         class="w-8 h-8 rounded-full" loading="lazy" />
@@ -251,12 +247,11 @@
                                 </div>
                             </form>
                             
-                            <!-- Comments list -->
+                      
                             <div id="comments-container-{{ $post->id }}" class="space-y-3 pl-2">
                                 @foreach ($post->comments as $comment)
                                     <div class="flex items-start">
-                                        {{-- <img src="https://github.com/{{ $comment->user->githubProfile }}.png" alt="Avatar" class="w-8 h-8 rounded-full"> --}}
-
+                                      
                                         @if ( $comment->user->githubProfile)
                                         <img src="https://github.com/{{  $comment->user->githubProfile }}.png" alt="Avatar"
                                             class="w-8 h-8 rounded-full" loading="lazy" />
@@ -278,6 +273,36 @@
                     </div>
                 </div>
                 @endforeach
+            </div>
+        <div>
+            <div class="bg-gray-800 rounded-xl shadow-sm p-4">
+                <h3 class="text-xl font-bold text-white mb-4">Connections</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-center">
+                        <img src="https://via.placeholder.com/40" alt="Connection"
+                            class="w-10 h-10 rounded-full" />
+                        <div class="ml-3">
+                            <p class="text-white font-medium">Alice Johnson</p>
+                            <p class="text-gray-400 text-sm">UI/UX Designer</p>
+                        </div>
+                    </li>
+                    <li class="flex items-center">
+                        <img src="https://via.placeholder.com/40" alt="Connection"
+                            class="w-10 h-10 rounded-full" />
+                        <div class="ml-3">
+                            <p class="text-white font-medium">Bob Williams</p>
+                            <p class="text-gray-400 text-sm">Backend Developer</p>
+                        </div>
+                    </li>
+                    <li class="flex items-center">
+                        <img src="https://via.placeholder.com/40" alt="Connection"
+                            class="w-10 h-10 rounded-full" />
+                        <div class="ml-3">
+                            <p class="text-white font-medium">Catherine Lee</p>
+                            <p class="text-gray-400 text-sm">Project Manager</p>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -444,7 +469,7 @@
                     </button>
 
                     <button id="like-button-${post.id}" data-post-id="${post.id}"
-                        class="flex items-center ${post.isLiked ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500'}"
+                        class="flex items-center {{ $post->isLikedBy(auth()->user()) ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500' }}"
                         onclick="likePost(${post.id})">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -468,14 +493,24 @@
                     <div id="comments-container-${post.id}" class="space-y-3 pl-2">
                         ${comments.map(comment => `
                             <div class="flex items-start">
-                                
+                                 @if ( $comment->user->githubProfile)
+                                        <img src="https://github.com/{{  $comment->user->githubProfile }}.png" alt="Avatar"
+                                            class="w-8 h-8 rounded-full" loading="lazy" />
+                                        @else
+                                        <img src="https://avatar.iran.liara.run/public/boy" alt="Avatar"
+                                            class="w-8 h-8 rounded-full" loading="lazy" />
+                                        @endif
                                 <div class="ml-2 bg-gray-700 p-3 rounded-lg flex-grow">
                                     <div class="flex justify-between">
                                         
-
-                                        <span class="text-xs text-gray-400">${new Date(comment.created_at).toLocaleDateString()}</span>
-                                    </div>
-                                    <p class="text-gray-300 mt-1">${comment.content}</p>
+                                        <div class="ml-2 bg-gray-700 p-3 rounded-lg flex-grow">
+                                            <div class="flex justify-between">
+                                                <span class="font-medium text-gray-200">{{ $comment->user->username }}</span>
+                                                <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <p class="text-gray-300 mt-1">{{ $comment->content }}</p>
+                                        </div>
+                                      
                                 </div>
                             </div>
                         `).join('')}

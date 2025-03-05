@@ -56,7 +56,7 @@
                         @if (auth()->user()->skills && is_array(auth()->user()->skills))
                             <div class="mt-4 flex flex-wrap gap-2">
                                 @php
-                                    // Define the color classes
+                                  
                                     $colors = [
                                         'bg-red-600',
                                         'bg-blue-600',
@@ -72,11 +72,18 @@
                             </div>
                         @endif
 
-
+                            @php
+                            // dump(auth()->user()->connectedUserss);
+                            // dump(auth()->user()->connections);
+                            // dd(auth()->user()->connectedUsers);
+                            @endphp
                         <div class="mt-4 pt-4 border-t border-gray-700">
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-400">Connections</span>
-                                <span class="text-blue-400 font-medium">{{ auth()->user()->connectedUsers()->count() }}</span>
+                                <span class="text-blue-400 font-medium">
+                                    {{ auth()->user()->connectedUserss()->where('status', 'accepted')->count() + auth()->user()->connectedUsers()->where('status', 'accepted')->count() }}
+                                </span>
+                                
                                 
                             </div>
                             <div class="flex justify-between text-sm mt-2">
@@ -206,15 +213,8 @@
                                             </div>
                                         @else
                                             @php
-                                                $isConnected = auth()
-                                                    ->user()
-                                                    ->connections()
-                                                    ->where(function ($query) use ($post) {
-                                                        $query
-                                                            ->where('connection_id', $post->user->id)
-                                                            ->orWhere('user_id', $post->user->id);
-                                                    })
-                                                    ->exists();
+                                                $isConnected = auth()->user()->connectedUserss()->where('status', 'accepted')->where('user_id', $post->user->id)->exists() || 
+                                                    auth()->user()->connectedUsers()->where('status', 'accepted')->where('connection_id', $post->user->id)->exists();
                                             @endphp
 
                                             @if (!$isConnected)

@@ -195,7 +195,6 @@
                                                 </a>
                                                 <!-- Delete Button -->
                                                 <form action="{{ route('posts.destroy', $post->id) }}" method="POST"
-                                                    onsubmit="return confirm('Are you sure?')"
                                                     class="inline-flex items-center">
                                                     @csrf
                                                     @method('DELETE')

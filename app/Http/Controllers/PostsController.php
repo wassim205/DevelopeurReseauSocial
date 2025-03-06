@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TestNotification;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Hashtag;
 use App\Models\Post;
 use App\Models\Like;
+use App\Models\User;
+use App\Notifications\CommentNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,17 +19,27 @@ class PostsController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function comment()
+    {
+        $user = User::find(1);
+        $user->notify(new CommentNotification());
+
+        event(new TestNotification([
+            'comment' => 'hello',
+        ]));
+        dd("notification sent");
+    }
     public function index()
     {
 
         $posts = Post::with(['comments' => function ($query) {
             $query->latest();
         }])->latest()->get();
-        
-            $trendingTags = Hashtag::withCount('posts')
-                ->orderByDesc('posts_count')
-                ->limit(5)
-                ->get();
+
+        $trendingTags = Hashtag::withCount('posts')
+            ->orderByDesc('posts_count')
+            ->limit(5)
+            ->get();
         return view('dashboard', compact('posts', 'trendingTags'));
     }
     /**
@@ -114,26 +127,65 @@ class PostsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $post = Post::find($id);
+
+        if (!$post) {
+            return redirect()->route('posts.index')->with('error', 'Post not found');
+        }
+
+        return view('posts.edit', compact('post'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        // Validate the incoming request data
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'description' => 'nullable|string',
+            'project_link' => 'nullable|url',
+            'languages_used' => 'nullable|string',
+        ]);
+
+        // Find the post by ID and update the data
+        $post = Post::findOrFail($id);
+        $post->title = $request->input('title');
+        $post->content = $request->input('content');
+        $post->description = $request->input('description');
+        $post->project_link = $request->input('project_link');
+        $post->languages_used = $request->input('languages_used');
+
+        $post->save();
+
+        // Redirect back with a success message
+        return redirect()->route('dashboard')->with('success', 'Post updated successfully!');
     }
+
+
+
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $post = Post::find($id);
+
+        if (!$post) {
+            return redirect()->back()->with('error', 'Post not found.');
+        }
+        $post->delete();
+
+        return redirect()->back()->with('success', 'Post deleted successfully.');
     }
+
 
 
     public function toggleLike(Post $post)

@@ -6,9 +6,25 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ConnectionController;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+
+
+
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/test', function () {
+    return view('test');
+});
+Route::get('/comment', [PostsController::class, 'comment']);
+
+Route::view('pusher1', 'pusher1');
+Route::view('pusher2', 'pusher2');
+
 Route::get('/profileView', function () {
     return view('profile');
 })->name('profileView');

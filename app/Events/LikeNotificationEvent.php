@@ -8,7 +8,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TestNotification implements ShouldBroadcastNow
+class LikeNotificationEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,7 +26,7 @@ class TestNotification implements ShouldBroadcastNow
 
     public function broadcastAs()
     {
-        return 'test.notification';
+        return 'like.notification';
     }
 
     public function broadcastWith(): array

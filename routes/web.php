@@ -4,6 +4,7 @@ use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ConnectionController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -17,17 +18,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test', function () {
-    return view('test');
-});
-Route::get('/comment', [PostsController::class, 'comment']);
+// Route::get('/test', function () {
+//     return view('test');
+// });
+// Route::get('/comment', [PostsController::class, 'comment']);
 
-Route::view('pusher1', 'pusher1');
-Route::view('pusher2', 'pusher2');
+// Route::view('pusher1', 'pusher1');
+// Route::view('pusher2', 'pusher2');
 
 Route::get('/profileView', function () {
     return view('profile');
 })->name('profileView');
+
+Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::put('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
 
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');

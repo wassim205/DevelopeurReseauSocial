@@ -50,7 +50,7 @@
     });
 
     var channel = pusher.subscribe('notification');
-    channel.bind('test.notification', function (data) {
+    channel.bind('comment.notification', function (data) {
         if (data.comment) {
             toastr.info(
                 `<div class="notification-content">

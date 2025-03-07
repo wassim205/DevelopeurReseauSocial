@@ -2,33 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TestNotification;
+use App\Events\CommentNotificationtion;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Hashtag;
 use App\Models\Post;
 use App\Models\Like;
 use App\Models\User;
-use App\Notifications\CommentNotification;
+use App\Notifications\CommentNotification as notifCommentNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events;
+use App\Events\CommentNotification;
+use App\Events\LikeNotificationEvent;
+use App\Notifications\LikeNotification;
 
 class PostsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function comment()
-    {
-        $user = User::find(1);
-        $user->notify(new CommentNotification());
+    // public function comment()
+    // {
+    //     $user = User::find(1);
+    //     $user->notify(new CommentNotification());
 
-        event(new TestNotification([
-            'comment' => 'hello',
-        ]));
-        dd("notification sent");
-    }
+    //     event(new TestNotification([
+    //         'comment' => 'hello',
+    //     ]));
+    //     dd("notification sent");
+    // }
     public function index()
     {
 
@@ -40,6 +44,9 @@ class PostsController extends Controller
             ->orderByDesc('posts_count')
             ->limit(5)
             ->get();
+
+            // $unreadNotifications = Auth::user()->unreadNotifications()->count();
+
         return view('dashboard', compact('posts', 'trendingTags'));
     }
     /**
@@ -190,6 +197,7 @@ class PostsController extends Controller
 
     public function toggleLike(Post $post)
     {
+        // dd('ubzbd');
         $like = $post->likes()->where('user_id', Auth::id())->first();
         if ($like) {
             $like->delete();
@@ -199,7 +207,26 @@ class PostsController extends Controller
                 'user_id' => Auth::id(),
             ]);
             $liked = true;
+            // dd('hehe');
+            if (Auth::id() !== $post->user_id) {
+
+                $postOwner = User::find($post->user_id);
+                if ($postOwner) {
+                    $postOwner->notify(new LikeNotification($post));
+                }
+
+                event(new LikeNotificationEvent([
+                    'liked_user' => [
+                        'id' => Auth::id(),
+                        'name' => Auth::user()->username
+                    ],
+                    'message' => 'Liked your post',
+                    'post_owner_id' => $post->user_id,
+                    'post_title' => $post->title,
+                ]));
+            }
         }
+
 
         $count = $post->likes()->count();
         return response()->json(['liked' => $liked, 'count' => $count]);
@@ -217,6 +244,44 @@ class PostsController extends Controller
         $comment->content = $validatedData['content'];
         $comment->save();
 
+        //     $user = User::find($post->user_id);
+        //     if($user !== Auth::id()){
+        //     $user->notify(new CommentNotification($post));
+
+        //     event(new CommentNotificationtion([
+        //         'comment' => 'hello',
+        //         'post_owner_id' => $post->user_id,
+        //     ]));
+        // }
+
+        if (auth()->id() !== $post->user_id) {
+            $postOwner = User::find($post->user_id);
+            if ($postOwner) {
+                $postOwner->notify(new notifCommentNotification($post, $comment));
+            }
+
+            // Broadcast event
+            // event(new CommentNotification([
+            //     'commented_user' => Auth::user(),
+            //     'commented_message' => $comment->content,
+            //     'message' => 'commented on your post',
+            //     'post_owner_id' => $post->user_id,
+            //     'post_title' => $post->title,
+            //     // 'commented_at' => $post->comment->created_at
+            // ]));
+
+            event(new CommentNotification([
+                'commented_user' => [
+                    'id' => Auth::id(),
+                    'name' => Auth::user()->username
+                ],
+                'commented_message' => $comment->content,
+                'message' => 'commented on your post',
+                'post_owner_id' => $post->user_id,
+                'post_title' => $post->title,
+            ]));
+        }
+
         // Return a structured JSON with user info
         return response()->json([
             'user' => [
@@ -225,15 +290,5 @@ class PostsController extends Controller
             ],
             'content' => $comment->content,
         ]);
-    }
-
-
-    private function parseAndAttachHashtags(Post $post, string $content)
-    {
-        preg_match_all('/#([a-zA-Z0-9]+)/', $content, $matches);
-        foreach ($matches[1] as $tag) {
-            $hashtag = Hashtag::firstOrCreate(['name' => strtolower($tag)]);
-            $post->hashtags()->attach($hashtag->id);
-        }
     }
 }

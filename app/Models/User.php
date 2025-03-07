@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Notification;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
@@ -84,5 +85,10 @@ class User extends Authenticatable
     public function connectedUserss()
     {
         return $this->belongsToMany(User::class, 'connections', 'connection_id', 'user_id');
+    }
+
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }
